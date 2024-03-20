@@ -20,7 +20,7 @@ def apply_functional_dependencies(table: dict[str, dict], fd: list) -> tuple[dic
     rows_with_same_attributes = None
     seen_attribute_values = {}
 
-    print(f"Matching rows with same attributes '{x_attributes}'...")
+    print(f"Matching two rows with same attributes '{x_attributes}'...")
     for key, row in table.items():
         attribute_values = tuple(row.get(attr) for attr in x_attributes)
         if attribute_values in seen_attribute_values:
@@ -38,7 +38,7 @@ def apply_functional_dependencies(table: dict[str, dict], fd: list) -> tuple[dic
 
     # print(f"Row 1: {matching_key}, Row 1 values: {matching_row}")
     # print(f"Row 2: {key}, Row 2 values: {row}")
-    print(f"Found matching rows with same attributes '{x_attributes}', make their '{y_attribute}' the same")
+    print(f"Found matching rows with same attributes '{x_attributes}', make their attribute '{y_attribute}' the same")
     # print the two rows with same attributes
     matching_key, matching_row, key, row = rows_with_same_attributes
 
