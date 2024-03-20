@@ -6,9 +6,9 @@ from tabulate import tabulate
 class LosslessDecompositionChecker:
     def __init__(self):
         # Taking input from the user
-        # attributes = input_attributes()  # ['A', 'B', 'C', 'D', 'E', 'F']
-        # functional_dependencies = input_functional_dependencies()  # [['B', 'E'], ['EF', 'C'], ['BC', 'A'], ['AD', 'E']]
-        # decompositions = input_decompositions()  # {'R1(A,B,C,F)': ['A', 'B', 'C', 'F'], 'R2(A,D,E)': ['A', 'D', 'E'], 'R3(B,D,F)': ['B', 'D', 'F']}
+        # attributes = ['A', 'B', 'C', 'D', 'E', 'F']
+        # functional_dependencies = [['B', 'E'], ['EF', 'C'], ['BC', 'A'], ['AD', 'E']]
+        # decompositions = {'R1(A,B,C,F)': ['A', 'B', 'C', 'F'], 'R2(A,D,E)': ['A', 'D', 'E'], 'R3(B,D,F)': ['B', 'D', 'F']}
         self.attributes = self.input_attributes()
         self.functional_dependencies = self.input_functional_dependencies()
         self.decompositions = self.input_decompositions()
@@ -21,7 +21,7 @@ class LosslessDecompositionChecker:
                 table[key][attr] = attr.lower() if attr in self.decompositions[key] else attr.lower() + str(
                     index + 1)
         print("Initial Tuples:")
-        self.print_dict_as_table(table)
+        self.print_table()
         return table
 
     def apply_functional_dependencies(self, fd: list) -> tuple[dict[str, dict], str | None] | None:
@@ -79,8 +79,7 @@ class LosslessDecompositionChecker:
             updated_row_key = key
         return updated_row_key
 
-    @staticmethod
-    def print_dict_as_table(tuple_table: dict[str, dict]) -> None:
+    def print_table(self) -> None:
         """
         Print tuple table pretty
         +-----------------+-----+-----+-----+
@@ -90,11 +89,10 @@ class LosslessDecompositionChecker:
         +-----------------+-----+-----+-----+
         | R2(B, C)        | a2  | b   | c   |
         +-----------------+-----+-----+-----+
-        :param tuple_table:
         :return:
         """
-        keys = list(tuple_table.keys())
-        values = list(tuple_table.values())
+        keys = list(self.table.keys())
+        values = list(self.table.values())
         headers = ['Decomposition'] + sorted(values[0].keys())
         table = []
         for key, value in zip(keys, values):
@@ -113,7 +111,7 @@ class LosslessDecompositionChecker:
 
             updated_row_key = result
             print("\nTuples after Applying Functional Dependencies:")
-            self.print_dict_as_table(self.table)
+            self.print_table()
 
             # check if updated row has no subscript at all
             if updated_row_key:
