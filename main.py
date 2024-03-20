@@ -13,6 +13,7 @@ class LosslessDecompositionChecker:
         self.functional_dependencies = self.input_functional_dependencies()
         self.decompositions = self.input_decompositions()
         self.table = self.generate_initial_state()
+        self.print_table()
         
     def generate_initial_state(self):
         table = {key: {} for key in self.decompositions}
@@ -21,7 +22,6 @@ class LosslessDecompositionChecker:
                 table[key][attr] = attr.lower() if attr in self.decompositions[key] else attr.lower() + str(
                     index + 1)
         print("Initial Tuples:")
-        self.print_table()
         return table
 
     def apply_functional_dependencies(self, fd: list) -> tuple[dict[str, dict], str | None] | None:
