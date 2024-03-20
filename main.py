@@ -1,19 +1,18 @@
 import re
+from typing import Any, Tuple, Dict
 from tabulate import tabulate
 
 
-def check_if_str_has_subscript(string):
+def check_if_str_has_subscript(string: str) -> bool:
     matches = re.match(r"([a-zA-Z]+)(\d*)", string)
     digit_part1 = matches.group(2)
     return True if digit_part1 else False
 
 
-def apply_functional_dependencies(table: dict[str, dict], fd: list):
+def apply_functional_dependencies(table: dict[str, dict], fd: list) -> tuple[dict[str, dict], str | None] | None:
     """
-    Process each fd as an iteration. Find two tuple with same x, make y the same
-    :param table: e.g.
-    {'R1(A, C)': {'A': 'a', 'B': 'b1', 'C': 'c'},
-     'R2(B, C)': {'A': 'a2', 'B': 'b', 'C': 'c'}}
+    Process each fd as in current iteration. Find two tuple with same x, make y the same
+    :param table:
     :param fd:
     :return: modified table
     """
@@ -62,10 +61,10 @@ def apply_functional_dependencies(table: dict[str, dict], fd: list):
         table[key][y_attribute] = y_value1
         updated_row_key = key
 
-    return (table, updated_row_key)
+    return table, updated_row_key
 
 
-def print_dict_as_table(dictionary):
+def print_dict_as_table(tuple_table: dict[str, dict]) -> None:
     """
     Print tuple table pretty
     +-----------------+-----+-----+-----+
@@ -75,27 +74,20 @@ def print_dict_as_table(dictionary):
     +-----------------+-----+-----+-----+
     | R2(B, C)        | a2  | b   | c   |
     +-----------------+-----+-----+-----+
-    :param dictionary:
+    :param tuple_table:
     :return:
     """
-    if not dictionary:
-        print("Dictionary is empty.")
-        return
-
-    keys = list(dictionary.keys())
-    values = list(dictionary.values())
+    keys = list(tuple_table.keys())
+    values = list(tuple_table.values())
     headers = ['Decomposition'] + sorted(values[0].keys())
-
     table = []
     for key, value in zip(keys, values):
         row = [key] + [value[attr] for attr in sorted(value.keys())]
         table.append(row)
-
     print(tabulate(table, headers, tablefmt="grid"))
 
 
-def chase_algorithm(attributes, functional_dependencies, decompositions):
-
+def chase_algorithm(attributes: list, functional_dependencies: list[list], decompositions: dict[Any, list[Any]]) -> None:
     # Generate initial table
     table = {key: {} for key in decompositions}
     for attr in attributes:
@@ -105,16 +97,15 @@ def chase_algorithm(attributes, functional_dependencies, decompositions):
     print("Initial Tuples:")
     print_dict_as_table(table)
 
+    # Start iterations
     for i, fd in enumerate(functional_dependencies):
         print("\nApplying the {} Functional Dependencies: {} -> {}".format(i+1, fd[0], fd[1]))
         result = apply_functional_dependencies(table, fd)
-
         if not result:
             print("\nFunctional Dependency is violated, lossy decomposition!!!")
             break
 
         new_table, updated_row_key = result
-
         print("\nTuples after Applying Functional Dependencies:")
         print_dict_as_table(new_table)
 
@@ -131,38 +122,51 @@ def chase_algorithm(attributes, functional_dependencies, decompositions):
                 break
 
 
-def main():
-    # Taking input from the user
-    num_attributes = int(input("Enter the number of attributes (e.g. 6): "))
+def input_attributes() -> list:
+    num_attributes = int(input("Enter number of attributes (e.g. 6): "))
     attributes = [chr(ord('A') + i) for i in range(num_attributes)]
     print("Attributes list: {}".format(', '.join(attributes)))
+    return attributes
 
-    functional_dependencies_input = input("Enter the functional dependencies separated by ',' (e.g. B->E,EF->C,BC->A,AD->E): ")
+
+def input_functional_dependencies() -> list[list]:
+    functional_dependencies_input = input(
+        "Enter functional dependencies separated by ',' (e.g. B->E,EF->C,BC->A,AD->E): ")
     functional_dependencies_list = functional_dependencies_input.split(",")
     functional_dependencies = []
     for fd in functional_dependencies_list:
         fd = fd.split("->")
         fd = [f.strip() for f in fd]
         functional_dependencies.append(fd)
+    return functional_dependencies
 
-    decompositions_input = input("Enter the desired decompositions separated by ',' (e.g. R1(A,B,C,F),R2(A,D,E)R3(B,D,F)): ")
+
+def input_decompositions() -> dict[Any, list[Any]]:
+    decompositions_input = input(
+        "Enter desired decompositions separated by ',' (e.g. R1(A,B,C,F),R2(A,D,E),R3(B,D,F)): ")
     decomposition_matches = re.findall(r'(\w+)\((.*?)\)', decompositions_input)
     decompositions = {}
     for match in decomposition_matches:
         key = match[0].strip() + "(" + match[1].strip() + ")"
         values = [v.strip() for v in match[1].split(",")]
         decompositions[key] = values
+    return decompositions
 
-    # execute chase algorithm
+
+def main():
+    # Taking input from the user
+    attributes = input_attributes()  # ['A', 'B', 'C', 'D', 'E', 'F']
+    functional_dependencies = input_functional_dependencies()  # [['B', 'E'], ['EF', 'C'], ['BC', 'A'], ['AD', 'E']]
+    decompositions = input_decompositions()  # {'R1(A,B,C,F)': ['A', 'B', 'C', 'F'], 'R2(A,D,E)': ['A', 'D', 'E'], 'R3(B,D,F)': ['B', 'D', 'F']}
     chase_algorithm(attributes, functional_dependencies, decompositions)
 
 
+# Calling the Chase algorithm with the input
+# Positive example 1
+# 3    C->B                     R1(A,C), R2(B,C)
+# Positive example 2
+# 6    B->E,EF->C,BC->A,AD->E   R1(A,B,C,F),R2(A,D,E),R3(B,D,F)
+# Negative example 3
+# 3    A->C                     R1(A,B),R2(B,C)
 if __name__ == "__main__":
-    # Calling the Chase algorithm with the input
-    # Positive example 1
-    # 3    C->B                     R1(A,C), R2(B,C)
-    # Positive example 2
-    # 6    B->E,EF->C,BC->A,AD->E   R1(A,B,C,F),R2(A,D,E),R3(B,D,F)
-    # Negative example 3
-    # 3    A->C                     R1(A,B),R2(B,C)
     main()
