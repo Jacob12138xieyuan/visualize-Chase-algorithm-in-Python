@@ -12,11 +12,21 @@ class LosslessDecompositionChecker:
         self.attributes = self.input_attributes()
         self.functional_dependencies = self.input_functional_dependencies()
         self.decompositions = self.input_decompositions()
+        self.table = self.generate_initial_state()
+        
+    def generate_initial_state(self):
+        table = {key: {} for key in self.decompositions}
+        for attr in self.attributes:
+            for index, key in enumerate(table.keys()):
+                table[key][attr] = attr.lower() if attr in self.decompositions[key] else attr.lower() + str(
+                    index + 1)
+        print("Initial Tuples:")
+        self.print_dict_as_table(table)
+        return table
 
-    def apply_functional_dependencies(self, table: dict[str, dict], fd: list) -> tuple[dict[str, dict], str | None] | None:
+    def apply_functional_dependencies(self, fd: list) -> tuple[dict[str, dict], str | None] | None:
         """
         Process each fd as in current iteration. Find two tuple with same x, make y the same
-        :param table:
         :param fd:
         :return: modified table
         """
@@ -25,11 +35,11 @@ class LosslessDecompositionChecker:
         seen_attribute_values = {}
 
         print(f"Matching two rows with same attributes '{x_attributes}'...")
-        for key, row in table.items():
+        for key, row in self.table.items():
             attribute_values = tuple(row.get(attr) for attr in x_attributes)
             if attribute_values in seen_attribute_values:
                 matching_key = seen_attribute_values[attribute_values]
-                matching_row = table[matching_key]
+                matching_row = self.table[matching_key]
                 rows_with_same_attributes = (matching_key, matching_row, key, row)
                 break
             else:
@@ -46,8 +56,8 @@ class LosslessDecompositionChecker:
         # print the two rows with same attributes
         matching_key, matching_row, key, row = rows_with_same_attributes
 
-        y_value1 = table[matching_key][y_attribute]
-        y_value2 = table[key][y_attribute]
+        y_value1 = self.table[matching_key][y_attribute]
+        y_value2 = self.table[key][y_attribute]
 
         # if y_value1 and y_value2 both have subscript, make second value same as first value
         # if one y_attribute value has not subscript, make two value no subscript
@@ -57,17 +67,17 @@ class LosslessDecompositionChecker:
         # y_value1 and y_value2 both have subscript
         updated_row_key = None
         if has_subscript1 and has_subscript2:
-            table[key][y_attribute] = y_value1
+            self.table[key][y_attribute] = y_value1
+            updated_row_key = key
         # y_value1 has subscript and y_value2 has no subscript
         elif has_subscript1 and not has_subscript2:
-            table[matching_key][y_attribute] = y_value2
+            self.table[matching_key][y_attribute] = y_value2
             updated_row_key = matching_key
         # y_value1 has no subscript and y_value2 has subscript
         elif not has_subscript1 and has_subscript2:
-            table[key][y_attribute] = y_value1
+            self.table[key][y_attribute] = y_value1
             updated_row_key = key
-
-        return table, updated_row_key
+        return updated_row_key
 
     @staticmethod
     def print_dict_as_table(tuple_table: dict[str, dict]) -> None:
@@ -93,31 +103,22 @@ class LosslessDecompositionChecker:
         print(tabulate(table, headers, tablefmt="grid"))
 
     def run_chase_algorithm(self) -> None:
-        # Generate initial table
-        table = {key: {} for key in self.decompositions}
-        for attr in self.attributes:
-            for index, key in enumerate(table.keys()):
-                table[key][attr] = attr.lower() if attr in self.decompositions[key] else attr.lower() + str(index + 1)
-
-        print("Initial Tuples:")
-        self.print_dict_as_table(table)
-
         # Start iterations
         for i, fd in enumerate(self.functional_dependencies):
             print("\nApplying the {} Functional Dependencies: {} -> {}".format(i+1, fd[0], fd[1]))
-            result = self.apply_functional_dependencies(table, fd)
+            result = self.apply_functional_dependencies(fd)
             if not result:
                 print("\nFunctional Dependency is violated, lossy decomposition!!!")
                 break
 
-            new_table, updated_row_key = result
+            updated_row_key = result
             print("\nTuples after Applying Functional Dependencies:")
-            self.print_dict_as_table(new_table)
+            self.print_dict_as_table(self.table)
 
             # check if updated row has no subscript at all
             if updated_row_key:
                 no_subscript = True
-                updated_row = new_table[updated_row_key]  # {'A': 'a', 'B': 'b', 'C': 'c'}
+                updated_row = self.table[updated_row_key]  # {'A': 'a', 'B': 'b', 'C': 'c'}
                 for value in updated_row.values():
                     if self.check_if_str_has_subscript(value):
                         no_subscript = False
