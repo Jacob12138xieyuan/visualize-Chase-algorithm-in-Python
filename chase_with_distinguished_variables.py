@@ -212,7 +212,7 @@ class DistinguishedVariableChaseChecker:
     @staticmethod
     def input_desired_decompositions():
         decompositions_input = input(
-            "Enter desired decompositions separated by ';' (e.g. R1(A,B,C,F);R2(A,D,E);R3(B,D,F)): ")
+            "Enter desired decompositions separated by ';' (e.g. R1(A,B,D);R2(A,C)): ")
         decomposition_matches = re.findall(r'(\w+)\((.*?)\)', decompositions_input)
         decompositions = []
         for match in decomposition_matches:
