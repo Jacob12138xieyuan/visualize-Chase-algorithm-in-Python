@@ -11,6 +11,17 @@
 chase_with_distinguished_variables.py
 ```
 
+Example 1: 4 A->>B,C;D->C A->C
+![dv_e1.1](img/dv_e1.1.png)
+![dv_e1.2](img/dv_e1.2.png)
+
+Example 2: 4 A->>B;B->>C A->>C
+![dv_e2.1](img/dv_e2.1.png)
+![dv_e2.2](img/dv_e2.2.png)
+
+Example 3: 4 A->>B;B->>C R1(A,B);R2(B,C);R3(A,D)
+![dv_e3.1](img/dv_e3.1.png)
+![dv_e3.2](img/dv_e3.2.png)
 
 ## Update on 2024/03/30
 ### Simple Chase
