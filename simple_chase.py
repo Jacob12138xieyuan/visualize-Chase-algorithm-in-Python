@@ -1,3 +1,10 @@
+"""
+Author: Xie Yuan
+Date: 2024-03-28
+
+Copyright 2024 Xie Yuan
+"""
+
 import pandas as pd
 
 

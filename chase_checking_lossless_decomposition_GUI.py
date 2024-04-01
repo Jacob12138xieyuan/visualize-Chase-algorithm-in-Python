@@ -1,3 +1,9 @@
+"""
+Author: Xie Yuan, Li Yijia
+Date: 2024-03-22
+"""
+
+
 from tkinter import *
 import re
 from tkinter import messagebox

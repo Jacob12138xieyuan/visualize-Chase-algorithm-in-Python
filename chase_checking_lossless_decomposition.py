@@ -1,3 +1,10 @@
+"""
+Author: Xie Yuan
+Date: 2024-03-22
+
+Copyright 2024 Xie Yuan
+"""
+
 import re
 from typing import Any
 from tabulate import tabulate
