@@ -39,7 +39,8 @@ Check if desired decomposition is lossless
 
 #### Implementation
 ```commandline
-simple_chase.py
+chase_checking_lossless_decomposition.py
+chase_checking_lossless_decomposition_GUI.py
 ```
 
 Example 1: 3 C->B R1(A,C), R2(B,C)
