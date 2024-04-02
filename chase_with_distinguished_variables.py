@@ -81,13 +81,18 @@ class DistinguishedVariableChaseChecker:
         success = False
         # Start iterations
         for i, d in enumerate(self.dependencies):
+            prompt = f"\nPress Enter key to {'apply' if i == 0 else 'continue applying'} dependency..."
+            user_input = input(prompt)
+            if user_input == "":
+                pass
+
             print(f"\nApplying the {i + 1} Dependency: {d}")
             result = self.apply_dependency(d)
             if not result:
                 print("\nFunctional Dependency is violated")
                 break
 
-            print("\nTuples after Applying Dependency:")
+            print("Tuples after Applying Dependency:")
             print_df_pretty(self.table)
 
             if self.option == 1:
@@ -115,10 +120,14 @@ class DistinguishedVariableChaseChecker:
             if i != len(self.dependencies) - 1:
                 if self.option == 1:
                     print(
-                        f"Did not find a tuple with all same value, continue applying other dependencies")
+                        f"Cannot find a row of distinguished variables, continue applying other dependencies")
                 else:
-                    print(
-                        f"Desired dependency {self.desired_dependency} not fulfilled, continue applying other dependencies")
+                    if self.is_desired_dependency_mvd:
+                        print(
+                            f"Cannot find a row of distinguished variables, continue applying other dependencies")
+                    else:
+                        print(f"Cannot find the Y−columns {self.desired_ys} of distinguished variables.")
+
         if success:
             if self.option == 1:
                 print(f"Congrats! The desired decomposition {self.desired_decompositions} is lossless!")

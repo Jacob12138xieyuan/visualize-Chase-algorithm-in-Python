@@ -83,13 +83,18 @@ class SimpleChaseChecker:
         success = False
         # Start iterations
         for i, d in enumerate(self.dependencies):
-            print(f"\nApplying the {i + 1} Dependency: {d}")
+            prompt = f"\nPress Enter key to {'apply' if i == 0 else 'continue applying'} dependency..."
+            user_input = input(prompt)
+            if user_input == "":
+                pass
+
+            print(f"\nApplying the {i + 1} dependency: {d}")
             result = self.apply_dependency(d)
             if not result:
                 print("\nFunctional Dependency is violated")
                 break
 
-            print("\nTuples after Applying Functional Dependencies:")
+            print("Tuples after Applying Functional Dependencies:")
             print_df_pretty(self.table)
             print(f"\nChecking if desired dependency {self.desired_dependency} fulfilled...")
 
