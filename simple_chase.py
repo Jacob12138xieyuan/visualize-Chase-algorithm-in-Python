@@ -82,18 +82,23 @@ class SimpleChaseChecker:
         print_df_pretty(self.table)
         success = False
         # Start iterations
-        for i, d in enumerate(self.dependencies):
-            prompt = f"\nPress Enter key to {'apply' if i == 0 else 'continue applying'} dependency..."
-            user_input = input(prompt)
-            if user_input == "":
-                pass
-
-            print(f"\nApplying the {i + 1} dependency: {d}")
+        while self.dependencies:
+            d = self.dependencies.pop(0)
+            print(f"\nTry to apply the dependency: {d}")
             result = self.apply_dependency(d)
+            # if cannot apply this dependency
             if not result:
-                print("\nFunctional Dependency is violated")
-                break
-
+                # it is the last dependency, we fail
+                if not self.dependencies:
+                    print("Cannot apply this dependency. And it is the last dependency, dependency is violated")
+                # it is not the last dependency, we apply other first
+                else:
+                    print(
+                        "Cannot apply this dependency. It is not the last dependency, apply the next dependency first")
+                    # append it to the end for later use
+                    self.dependencies.append(d)
+                    continue
+            # successfully applied this dependency
             print("Tuples after Applying Functional Dependencies:")
             print_df_pretty(self.table)
             print(f"\nChecking if desired dependency {self.desired_dependency} fulfilled...")
@@ -113,7 +118,7 @@ class SimpleChaseChecker:
                 break
 
             # not last dependency, print continue
-            if i != len(self.dependencies) - 1:
+            if self.dependencies:
                 print(
                     f"Desired dependency {self.desired_dependency} not fulfilled, continue applying other dependencies")
         if success:
@@ -164,13 +169,11 @@ class SimpleChaseChecker:
         dependencies_list = dependencies_input.split(";")
         dependencies = [dependency.strip() for dependency in dependencies_list]
         return dependencies
-        # return ["A->>B", "B->>C"]
 
     @staticmethod
     def input_chase_dependency() -> str:
         chase_dependency_input = input("Enter desired dependency (e.g. A->C): ")
         return chase_dependency_input.strip()
-        # return "A->>C"
 
 
 # Calling the Chase algorithm with the input

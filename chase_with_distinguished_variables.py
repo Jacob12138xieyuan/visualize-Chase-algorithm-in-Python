@@ -80,12 +80,12 @@ class DistinguishedVariableChaseChecker:
         self.change_initial_tuple()
         success = False
         # Start iterations
-        # note: we shouldn't consider the sequence of dependencies
+        # note: we should consider the sequence of dependencies
         while self.dependencies:
             d = self.dependencies.pop(0)
             print(f"\nTry to apply the dependency: {d}")
             result = self.apply_dependency(d)
-            # cannot apply this dependency
+            # if cannot apply this dependency
             if not result:
                 # it is the last dependency, we fail
                 if not self.dependencies:
