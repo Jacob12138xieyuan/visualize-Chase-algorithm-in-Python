@@ -143,11 +143,15 @@ class View:
         # self.main_frame.pack_forget()
         self.second_frame.pack_forget()
         self.third_frame = Frame(self.root)
+        # add blank space
+        for _ in range(1):
+            Label(self.third_frame, text=" ").pack()
         third_label = Label(self.third_frame, text="Let's try!", font=self.my_biggest_font)
         third_button = Button(self.third_frame, text="Start Chase Algorithm", command=self.handle_start_process_click,font=self.my_sec_font)
         third_label.pack()
         third_button.pack()
-        self.third_txt = Text(self.third_frame, width=80, height=20)
+
+        self.third_txt = Text(self.third_frame, width=100, height=30, font=('Arial', 10))
 
         a = "Attributes list: {}".format(', '.join(self.model.attributes))
         self.third_txt.insert(END, a + '\n')
@@ -221,7 +225,7 @@ class Controller:
 if __name__ == "__main__":
     root = Tk()
     style = Style()
-    style = Style(theme='darkly')
+    style = Style(theme='sandstone')
     TOP6 = style.master
 
     root.geometry('1280x650')
