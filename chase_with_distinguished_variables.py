@@ -80,18 +80,23 @@ class DistinguishedVariableChaseChecker:
         self.change_initial_tuple()
         success = False
         # Start iterations
-        for i, d in enumerate(self.dependencies):
-            prompt = f"\nPress Enter key to {'apply' if i == 0 else 'continue applying'} dependency..."
-            user_input = input(prompt)
-            if user_input == "":
-                pass
-
-            print(f"\nApplying the {i + 1} Dependency: {d}")
+        # note: we shouldn't consider the sequence of dependencies
+        while self.dependencies:
+            d = self.dependencies.pop(0)
+            print(f"\nTry to apply the dependency: {d}")
             result = self.apply_dependency(d)
+            # cannot apply this dependency
             if not result:
-                print("\nFunctional Dependency is violated")
-                break
-
+                # it is the last dependency, we fail
+                if not self.dependencies:
+                    print("Cannot apply this dependency. And it is the last dependency, dependency is violated")
+                # it is not the last dependency, we apply other first
+                else:
+                    print("Cannot apply this dependency. It is not the last dependency, apply the next dependency first")
+                    # append it to the end for later use
+                    self.dependencies.append(d)
+                    continue
+            # successfully applied this dependency
             print("Tuples after Applying Dependency:")
             print_df_pretty(self.table)
 
@@ -101,23 +106,23 @@ class DistinguishedVariableChaseChecker:
                 result = self.if_found_one_tuple_with_same_value()
                 if result: print(f"Found a row of distinguished variables.")
             else:
-                print(f"\nChecking if desired dependency {self.desired_dependency} fulfilled...")
                 if self.is_desired_dependency_mvd:
+                    print(f"\nChecking if can find a row of distinguished variables...")
                     # Chase until you find a row of distinguished variables.
                     result = self.if_found_one_tuple_with_same_value()
                     if result: print(f"Found a row of distinguished variables.")
                 else:
+                    print(f"\nChecking if can find the Y−columns {self.desired_ys} of distinguished variables...")
                     # Chase until you find the Y−columns of distinguished variables.
                     result = self.if_found_y_columns_with_same_value()
                     if result: print(f"Found the Y−columns {self.desired_ys} of distinguished variables.")
 
-            # done checking lossless or desired dependency fulfilled
             if result:
                 success = True
                 break
 
-            # not last dependency, print continue
-            if i != len(self.dependencies) - 1:
+            # if still have dependencies
+            if self.dependencies:
                 if self.option == 1:
                     print(
                         f"Cannot find a row of distinguished variables, continue applying other dependencies")
@@ -130,14 +135,14 @@ class DistinguishedVariableChaseChecker:
 
         if success:
             if self.option == 1:
-                print(f"Congrats! The desired decomposition {self.desired_decompositions} is lossless!")
+                print(f"\nCongrats! The desired decomposition {self.desired_decompositions} is lossless!")
             else:
-                print(f"Congrats! Valid desired dependency {self.desired_dependency}!")
+                print(f"\nCongrats! Valid desired dependency {self.desired_dependency}!")
         else:
             if self.option == 1:
-                print(f"Sorry! The desired decomposition {self.desired_decompositions} is not lossless.")
+                print(f"\nSorry! The desired decomposition {self.desired_decompositions} is not lossless.")
             else:
-                print(f"Sorry! Invalid desired dependency {self.desired_dependency}.")
+                print(f"\nSorry! Invalid desired dependency {self.desired_dependency}.")
 
     def apply_dependency(self, d: str) -> bool:
         """
