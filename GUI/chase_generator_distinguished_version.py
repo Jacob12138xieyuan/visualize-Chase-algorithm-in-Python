@@ -57,36 +57,41 @@ class DistinguishedVariableChaseChecker:
         Preprocess state table according to 3 cases
         :return:
         """
+        str = ''
         if self.option == 1:
             # for each decomposition, e.g. 1st A,B,D, make 1st row all columns alpha
-            print(f"\nFor columns in each decomposition, distinguish their values in corresponding tuple.")
+            aa = f"\nFor columns in each decomposition, distinguish their values in corresponding tuple."
             for i, decomposition in enumerate(self.desired_decompositions):
                 self.table.loc[i, decomposition] = 'α'
+            str = aa
         else:
             if self.is_desired_dependency_mvd:
                 # For each A ∈ X ∪ Y , distinguish A−values in the first tuple.
                 union = list(set(self.desired_xs).union(self.desired_ys))
-                print(f"\nFor columns in {union}, distinguish their values in the first tuple.")
+                bb = f"\nFor columns in {union}, distinguish their values in the first tuple."
                 self.table.loc[0, union] = 'α'
                 # For each A ∈ X ∪ (R − X − Y ), Distinguish A−values in the second tuple.
                 other_columns = list(set(self.desired_xs).union(set(self.attributes).difference(set(self.desired_xs)).difference(set(self.desired_ys))))
-                print(f"For columns in {other_columns}, distinguish their values in the second tuple.")
+                cc = f"For columns in {other_columns}, distinguish their values in the second tuple."
                 self.table.loc[1, other_columns] = 'α'
+                str = bb + '\n' + cc
             else:
                 # Distinguish the values of the first tuple.
-                print("\nDistinguish the values of the first tuple.")
+                dd = "\nDistinguish the values of the first tuple."
                 self.table.loc[0] = 'α'
                 # For each A ∈ X, distinguish the A−values in the second tuple.
-                print(f"For columns in {self.desired_xs}, distinguish their values in the second tuple.")
+                ee = f"For columns in {self.desired_xs}, distinguish their values in the second tuple."
                 self.table.loc[1, self.desired_xs] = 'α'
-        # print_df_pretty(self.table)
+                str = dd + '\n' + ee
+        return ('\n' + str + '\n',return_df_pretty(self.table))
 
     def chase_generator(self) -> None:
         """
         Main chase algorithm
         :return:
         """
-        self.change_initial_tuple()
+        result = self.change_initial_tuple()
+        yield result
         success = False
         # Start iterations
         # note: we should consider the sequence of dependencies
