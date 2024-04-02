@@ -7,6 +7,7 @@ Copyright 2024 Xie Yuan
 
 import pandas as pd
 import re
+from common import print_df_pretty
 
 
 class DistinguishedVariableChaseChecker:
@@ -15,7 +16,7 @@ class DistinguishedVariableChaseChecker:
         self.attributes = self.input_attributes()
         self.dependencies = self.input_dependencies()
         # check lossless
-        if self.option == 0:
+        if self.option == 1:
             self.desired_decompositions = self.input_desired_decompositions()
         # check dependency
         else:
@@ -33,13 +34,13 @@ class DistinguishedVariableChaseChecker:
         :return:
         """
         data = []
-        for i in range(len(self.desired_decompositions) if self.option == 0 else 2):
+        for i in range(len(self.desired_decompositions) if self.option == 1 else 2):
             row_values = [f"{attribute.lower() + str(i + 1)}" for attribute in self.attributes]
             data.append(row_values)
         # Create the initial DataFrame
         table = pd.DataFrame(data, columns=self.attributes)
         print("\nInitial Tuples:")
-        print(table)
+        print_df_pretty(table)
         return table
 
     def change_initial_tuple(self):
@@ -47,7 +48,7 @@ class DistinguishedVariableChaseChecker:
         Preprocess state table according to 3 cases
         :return:
         """
-        if self.option == 0:
+        if self.option == 1:
             # for each decomposition, e.g. 1st A,B,D, make 1st row all columns alpha
             print(f"\nFor columns in each decomposition, distinguish their values in corresponding tuple.")
             for i, decomposition in enumerate(self.desired_decompositions):
@@ -67,9 +68,9 @@ class DistinguishedVariableChaseChecker:
                 print("\nDistinguish the values of the first tuple.")
                 self.table.loc[0] = 'α'
                 # For each A ∈ X, distinguish the A−values in the second tuple.
-                print(f"For columns in {self.desired_xs}, distinguish their values in the second1 tuple.")
+                print(f"For columns in {self.desired_xs}, distinguish their values in the second tuple.")
                 self.table.loc[1, self.desired_xs] = 'α'
-        print(self.table)
+        print_df_pretty(self.table)
 
     def run_chase_algorithm(self) -> None:
         """
@@ -86,21 +87,24 @@ class DistinguishedVariableChaseChecker:
                 print("\nFunctional Dependency is violated")
                 break
 
-            print("\nTuples after Applying Functional Dependencies:")
-            print(self.table)
+            print("\nTuples after Applying Dependency:")
+            print_df_pretty(self.table)
 
-            if self.option == 0:
+            if self.option == 1:
                 print(f"\nChecking if one tuple has all same value α...")
                 # Chase until you find a row of distinguished variables.
                 result = self.if_found_one_tuple_with_same_value()
+                if result: print(f"Found a row of distinguished variables.")
             else:
                 print(f"\nChecking if desired dependency {self.desired_dependency} fulfilled...")
                 if self.is_desired_dependency_mvd:
                     # Chase until you find a row of distinguished variables.
                     result = self.if_found_one_tuple_with_same_value()
+                    if result: print(f"Found a row of distinguished variables.")
                 else:
                     # Chase until you find the Y−columns of distinguished variables.
                     result = self.if_found_y_columns_with_same_value()
+                    if result: print(f"Found the Y−columns {self.desired_ys} of distinguished variables.")
 
             # done checking lossless or desired dependency fulfilled
             if result:
@@ -109,19 +113,19 @@ class DistinguishedVariableChaseChecker:
 
             # not last dependency, print continue
             if i != len(self.dependencies) - 1:
-                if self.option == 0:
+                if self.option == 1:
                     print(
                         f"Did not find a tuple with all same value, continue applying other dependencies")
                 else:
                     print(
                         f"Desired dependency {self.desired_dependency} not fulfilled, continue applying other dependencies")
         if success:
-            if self.option == 0:
+            if self.option == 1:
                 print(f"Congrats! The desired decomposition {self.desired_decompositions} is lossless!")
             else:
                 print(f"Congrats! Valid desired dependency {self.desired_dependency}!")
         else:
-            if self.option == 0:
+            if self.option == 1:
                 print(f"Sorry! The desired decomposition {self.desired_decompositions} is not lossless.")
             else:
                 print(f"Sorry! Invalid desired dependency {self.desired_dependency}.")
@@ -185,9 +189,9 @@ class DistinguishedVariableChaseChecker:
 
     @staticmethod
     def input_option() -> int:
-        option = int(input("Do you want to check lossless decomposition (0) or new dependency (1): "))
+        option = int(input("Do you want to chase dependency (0) or lossless decomposition (1): "))
         assert option in [0, 1]
-        print(f"You selected checking {'lossless decomposition' if option == 0 else 'new dependency'}")
+        print(f"You selected chasing {'lossless decomposition' if option == 1 else 'dependency'}")
         return option
 
     @staticmethod

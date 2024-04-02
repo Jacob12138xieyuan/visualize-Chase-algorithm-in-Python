@@ -6,6 +6,7 @@ Copyright 2024 Xie Yuan
 """
 
 import pandas as pd
+from common import print_df_pretty
 
 
 class SimpleChaseChecker:
@@ -28,7 +29,7 @@ class SimpleChaseChecker:
         # Create the initial DataFrame
         table = pd.DataFrame(data, columns=self.attributes)
         print("\nInitial Tuples:")
-        print(table)
+        print_df_pretty(table)
         return table
 
     def apply_dependency(self, d: str) -> bool:
@@ -78,7 +79,7 @@ class SimpleChaseChecker:
         # make second row self.desired_x = first row
         print(f"\nDesired X is {self.desired_x}, make their value the same")
         self.table.loc[1, self.desired_xs] = self.table.loc[0, self.desired_xs]
-        print(self.table)
+        print_df_pretty(self.table)
         success = False
         # Start iterations
         for i, d in enumerate(self.dependencies):
@@ -89,7 +90,7 @@ class SimpleChaseChecker:
                 break
 
             print("\nTuples after Applying Functional Dependencies:")
-            print(self.table)
+            print_df_pretty(self.table)
             print(f"\nChecking if desired dependency {self.desired_dependency} fulfilled...")
 
             # check if desired dependency is fulfilled
