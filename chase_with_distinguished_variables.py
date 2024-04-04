@@ -1,10 +1,7 @@
 """
 Author: Xie Yuan
-Date: 2024-04-01
-
-Copyright 2024 Xie Yuan
+Date: 2024-04-04
 """
-from typing import Set
 
 import pandas as pd
 import re
