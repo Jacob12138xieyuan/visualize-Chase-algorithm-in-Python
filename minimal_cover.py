@@ -228,7 +228,7 @@ def input_dependencies() -> list[str]:
 
 def input_covers() -> list[str]:
     dependencies_input = input(
-        "Enter functional cover you want to test separated by ';' (e.g. A->B;B->C) \n(Notice you cannot have more than one attribute in the right hand side， otherwise it is not a non-compact minimal cover): ")
+        "Enter functional cover you want to test separated by ';' (e.g. A->B;B->C) \n(Notice you cannot have more than one attribute in the right hand side, otherwise it is not a non-compact minimal cover): ")
     dependencies_list = dependencies_input.split(";")
     dependencies = [dependency.strip() for dependency in dependencies_list]
     return dependencies
