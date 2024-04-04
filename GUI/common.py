@@ -3,7 +3,7 @@ from tabulate import tabulate
 
 def return_df_pretty(df):
     # Convert the DataFrame to a formatted table with borders
-    table = tabulate(df, headers='keys', tablefmt='fancy_grid', showindex=True)
+    table = tabulate(df, headers='keys', tablefmt='presto', showindex=True)
     # Print the table
     return table
 
