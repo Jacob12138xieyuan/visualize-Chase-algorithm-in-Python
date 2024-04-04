@@ -4,6 +4,7 @@ Date: 2024-04-01
 
 Copyright 2024 Xie Yuan
 """
+from typing import Set
 
 import pandas as pd
 import re
@@ -82,57 +83,29 @@ class DistinguishedVariableChaseChecker:
         # Start iterations
         # note: we should consider the sequence of dependencies
         while self.dependencies:
-            d = self.dependencies.pop(0)
-            print(f"\nTry to apply the dependency: {d}")
-            result = self.apply_dependency(d)
-            # if cannot apply this dependency
-            if not result:
-                # it is the last dependency, we fail
-                if not self.dependencies:
-                    print("Cannot apply this dependency. And it is the last dependency, dependency is violated")
-                # it is not the last dependency, we apply other first
-                else:
-                    print("Cannot apply this dependency. It is not the last dependency, apply the next dependency first")
-                    # append it to the end for later use
-                    self.dependencies.append(d)
-                    continue
-            # successfully applied this dependency
+            no_fd_apply = True
+            for d in self.dependencies:
+                result = self.apply_dependency(d)
+                # if can apply this dependency
+                if result:
+                    print(f"\nApply dependency: {d}")
+                    self.dependencies.remove(d)
+                    no_fd_apply = False
+                    break
+            # all left fd cannot apply
+            if no_fd_apply:
+                print(f"\nNo dependency in {self.dependencies} can apply anymore.")
+                break
+            # one fd applied
             print("Tuples after Applying Dependency:")
             print_df_pretty(self.table)
+            # check if condition already met
+            success = self.if_final_condition_met()
+            if success: break
+        # final condition met or left all fds cannot apply
+        self.print_final_conclusion(success)
 
-            if self.option == 1:
-                print(f"\nChecking if one tuple has all same value α...")
-                # Chase until you find a row of distinguished variables.
-                result = self.if_found_one_tuple_with_same_value()
-                if result: print(f"Found a row of distinguished variables.")
-            else:
-                if self.is_desired_dependency_mvd:
-                    print(f"\nChecking if can find a row of distinguished variables...")
-                    # Chase until you find a row of distinguished variables.
-                    result = self.if_found_one_tuple_with_same_value()
-                    if result: print(f"Found a row of distinguished variables.")
-                else:
-                    print(f"\nChecking if can find the Y−columns {self.desired_ys} of distinguished variables...")
-                    # Chase until you find the Y−columns of distinguished variables.
-                    result = self.if_found_y_columns_with_same_value()
-                    if result: print(f"Found the Y−columns {self.desired_ys} of distinguished variables.")
-
-            if result:
-                success = True
-                break
-
-            # if still have dependencies
-            if self.dependencies:
-                if self.option == 1:
-                    print(
-                        f"Cannot find a row of distinguished variables, continue applying other dependencies")
-                else:
-                    if self.is_desired_dependency_mvd:
-                        print(
-                            f"Cannot find a row of distinguished variables, continue applying other dependencies")
-                    else:
-                        print(f"Cannot find the Y−columns {self.desired_ys} of distinguished variables.")
-
+    def print_final_conclusion(self, success):
         if success:
             if self.option == 1:
                 print(f"\nCongrats! The desired decomposition {self.desired_decompositions} is lossless!")
@@ -143,6 +116,41 @@ class DistinguishedVariableChaseChecker:
                 print(f"\nSorry! The desired decomposition {self.desired_decompositions} is not lossless.")
             else:
                 print(f"\nSorry! Invalid desired dependency {self.desired_dependency}.")
+
+    def if_final_condition_met(self):
+        final_result = False
+        if self.option == 1:
+            print(f"\nChecking if one tuple has all same value α...")
+            # Chase until you find a row of distinguished variables.
+            result = self.if_found_one_tuple_with_same_value()
+            if result:
+                print(f"Found a row of distinguished variables.")
+                final_result = True
+            else:
+                print(
+                    f"Cannot find a row of distinguished variables, continue applying other dependencies")
+        else:
+            if self.is_desired_dependency_mvd:
+                print(f"\nChecking if can find a row of distinguished variables...")
+                # Chase until you find a row of distinguished variables.
+                result = self.if_found_one_tuple_with_same_value()
+                if result:
+                    print(f"Found a row of distinguished variables.")
+                    final_result = True
+                else:
+                    print(
+                        f"Cannot find a row of distinguished variables, continue applying other dependencies")
+            else:
+                print(
+                    f"\nChecking if can find the Y−columns {self.desired_ys} of distinguished variables...")
+                # Chase until you find the Y−columns of distinguished variables.
+                result = self.if_found_y_columns_with_same_value()
+                if result:
+                    print(f"Found the Y−columns {self.desired_ys} of distinguished variables.")
+                    final_result = True
+                else:
+                    print(f"Cannot find the Y−columns {self.desired_ys} of distinguished variables.")
+        return final_result
 
     def apply_dependency(self, d: str) -> bool:
         """
@@ -217,10 +225,10 @@ class DistinguishedVariableChaseChecker:
         return attributes
 
     @staticmethod
-    def input_dependencies() -> list[str]:
+    def input_dependencies() -> set[str]:
         dependencies_input = input("Enter functional/multi-value dependencies separated by ';' (e.g. A->>B,C;D->C): ")
         dependencies_list = dependencies_input.split(";")
-        dependencies = [dependency.strip() for dependency in dependencies_list]
+        dependencies = set(dependency.strip() for dependency in dependencies_list)
         return dependencies
 
     @staticmethod
