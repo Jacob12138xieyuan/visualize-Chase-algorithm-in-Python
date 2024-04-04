@@ -230,14 +230,15 @@ class DistinguishedVariableChaseChecker:
             # else if one row has small subscript
             groups = duplicated_rows.groupby(xs)
             for _, group_df in groups:
-                alpha_exists = 'α' in group_df[ys].values
-                # Update the ys column with 'α'
-                if alpha_exists:
-                    self.table.loc[group_df.index, ys] = 'α'
-                else:
-                    min_subscript_value = group_df[ys].min().item()
-                    # Update the ys column with the smallest value
-                    self.table.loc[group_df.index, ys] = min_subscript_value
+                for col in ys:
+                    alpha_exists = 'α' in group_df[col].values
+                    # Update the col column with 'α'
+                    if alpha_exists:
+                        self.table.loc[group_df.index, col] = 'α'
+                    else:
+                        min_subscript_value = group_df[col].min().item()
+                        # Update the col column with the smallest value
+                        self.table.loc[group_df.index, col] = min_subscript_value
         return True
 
     def if_found_one_tuple_with_same_value(self):
