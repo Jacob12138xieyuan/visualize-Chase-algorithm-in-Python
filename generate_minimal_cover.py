@@ -2,7 +2,7 @@ from common import count_attributes, get_all_subsets, get_key_string, is_parent_
 
 
 def input_dependencies() -> list[str]:
-    dependencies_input = input("Enter functional dependencies separated by ';' (e.g. A->B;B->C):")
+    dependencies_input = input("Enter functional dependencies separated by ';' (e.g. A->B;B->C;B->A;A->C):")
     dependencies = dependencies_input.split(';')  # 分割多个函数依赖
     result = []
     for dep in dependencies:
