@@ -88,6 +88,11 @@ def gen_min_covers(fds):
                 all_minimal_cover.append(subset)
     return all_minimal_cover
 
+
+# example1: A->B;B->C;B->A;A->C
+# example2: A->A,B;B->A,C;A->C;A,B->C
+# example3: A->B,C;B->C,D;D->B;A,B,E->F
+# B->D;B->C;C->B;C->D;B->E;C->E
 if __name__ == "__main__":
     relations = input_dependencies()
     all_minimal_cover = gen_min_covers(relations)
