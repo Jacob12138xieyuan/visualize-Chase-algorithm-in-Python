@@ -83,7 +83,7 @@ class DistinguishedVariableChaseChecker:
             no_fd_apply = True
             for d in self.dependencies:
                 result = self.apply_dependency(d)
-                # if can apply this dependency
+                # if this dependency can apply
                 if result:
                     print(f"\nApply dependency: {d}")
                     self.dependencies.remove(d)
@@ -221,16 +221,14 @@ class DistinguishedVariableChaseChecker:
         print("Attributes list: {}".format(', '.join(attributes)))
         return attributes
 
-    @staticmethod
-    def input_dependencies() -> set[str]:
-        dependencies_input = input("Enter functional/multi-value dependencies separated by ';' (e.g. A->>B,C;D->C): ")
+    def input_dependencies(self) -> set[str]:
+        dependencies_input = input(f"Enter functional/multi-value dependencies separated by ';' (e.g. {'A->>B,C;D->C' if self.option == 0 else 'A->>B;B->>C' }): ")
         dependencies_list = dependencies_input.split(";")
         dependencies = set(dependency.strip() for dependency in dependencies_list)
         return dependencies
 
-    @staticmethod
-    def input_desired_dependency() -> str:
-        chase_dependency_input = input("Enter desired dependency (e.g. A->C): ")
+    def input_desired_dependency(self) -> str:
+        chase_dependency_input = input(f"Enter desired dependency (e.g. {'A->C' if self.option == 0 else 'R1(A,B);R2(B,C);R3(A,D)'}): ")
         return chase_dependency_input.strip()
 
     @staticmethod
@@ -266,6 +264,9 @@ class DistinguishedVariableChaseChecker:
 # 4    A->>B;B->>C       A->>C
 # negative example 3
 # 4    A->>B,C;C,D->B    A->B
+
+# A,B->C;C->A;C,D->E;E->D
+# A,B,D->A,B,C,D,E
 if __name__ == "__main__":
     checker = DistinguishedVariableChaseChecker()
     checker.run_chase_algorithm()
